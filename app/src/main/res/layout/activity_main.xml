@@ -17,18 +17,47 @@
         android:layout_marginBottom="16dp"
         android:textColor="#333333" />
 
-    <!-- Current Date Display -->
+    <!-- Selected Date Display -->
     <TextView
         android:id="@+id/currentDateDisplay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Selected Date: "
-        android:textSize="16sp"
+        android:text="Thu, Oct 30"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
         android:layout_marginBottom="16dp"
         android:padding="12dp"
         android:background="#ffffff"
-        android:gravity="center"
         android:elevation="2dp" />
+
+    <!-- Calendar Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#ffffff"
+        android:padding="16dp"
+        android:elevation="2dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="October 2023"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Calendar View -->
+        <CalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginBottom="12dp" />
+
+    </LinearLayout>
 
     <!-- Expense Input Section -->
     <LinearLayout
@@ -56,8 +85,7 @@
             android:hint="Expense Name"
             android:layout_marginBottom="8dp"
             android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:textColorHint="#666666" />
+            android:background="@android:drawable/edit_text" />
 
         <!-- Expense Amount -->
         <EditText
@@ -68,8 +96,7 @@
             android:inputType="numberDecimal"
             android:layout_marginBottom="12dp"
             android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:textColorHint="#666666" />
+            android:background="@android:drawable/edit_text" />
 
         <!-- Buttons Row -->
         <LinearLayout
@@ -78,30 +105,27 @@
             android:orientation="horizontal"
             android:weightSum="3">
 
-            <!-- Date Select Button -->
-            <Button
-                android:id="@+id/dateSelectButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Select Date"
-                android:layout_marginEnd="4dp"
-                android:backgroundTint="#2196F3"
-                android:textColor="#ffffff" />
-
-            <!-- Add Expense Button -->
             <Button
                 android:id="@+id/addExpenseButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Add Expense"
-                android:layout_marginStart="4dp"
+                android:text="Add"
                 android:layout_marginEnd="4dp"
                 android:backgroundTint="#4CAF50"
                 android:textColor="#ffffff" />
 
-            <!-- Show All Button -->
+            <Button
+                android:id="@+id/filterButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Filter"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#2196F3"
+                android:textColor="#ffffff" />
+
             <Button
                 android:id="@+id/showAllButton"
                 android:layout_width="0dp"
@@ -116,16 +140,15 @@
 
     </LinearLayout>
 
-    <!-- Expenses List Header -->
+    <!-- Expenses List -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Expenses List"
+        android:text="Expenses"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="8dp" />
 
-    <!-- Expenses List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/expensesRecyclerView"
         android:layout_width="match_parent"

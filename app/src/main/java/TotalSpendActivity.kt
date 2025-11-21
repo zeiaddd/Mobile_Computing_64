@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TotalSpendActivity : AppCompatActivity() {
 
@@ -37,11 +39,12 @@ class TotalSpendActivity : AppCompatActivity() {
     private fun calculateTotalSpend() {
         val selectedDate = intent.getStringExtra("SELECTED_DATE") ?: return
 
-        dateTextView.text = "Total for: $selectedDate"
+        // Format the display
+        dateTextView.text = "Total Spend on $selectedDate:"
 
         viewModel.getExpensesByDate(selectedDate).observe(this) { expenses ->
             val total = expenses.sumOf { it.amount }
-            totalAmountTextView.text = "Total: $${String.format("%.2f", total)}"
+            totalAmountTextView.text = String.format("%.1f", total)
         }
     }
 }

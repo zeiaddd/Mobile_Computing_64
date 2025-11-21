@@ -1,11 +1,10 @@
 package com.example.expensetracker
 
 import Expense.Tracker.R
-import android.app.DatePickerDialog
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,13 +16,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: ExpenseViewModel
     private lateinit var expenseAdapter: ExpenseAdapter
     private lateinit var currentDateDisplay: TextView
+    private lateinit var calendarView: CalendarView
     private lateinit var expenseNameInput: EditText
     private lateinit var expenseAmountInput: EditText
-    private lateinit var dateSelectButton: Button
     private lateinit var addExpenseButton: Button
+    private lateinit var filterButton: Button
     private lateinit var showAllButton: Button
 
-    private var selectedDate: String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val displayDateFormat = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
+    private var selectedDate: String = dateFormat.format(Date())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,15 +35,19 @@ class MainActivity : AppCompatActivity() {
         setupViewModel()
         setupRecyclerView()
         setupClickListeners()
+
+        // Set initial date display
         updateDateDisplay()
+        loadAllExpenses()
     }
 
     private fun initializeViews() {
         currentDateDisplay = findViewById(R.id.currentDateDisplay)
+        calendarView = findViewById(R.id.calendarView)
         expenseNameInput = findViewById(R.id.expenseNameInput)
         expenseAmountInput = findViewById(R.id.expenseAmountInput)
-        dateSelectButton = findViewById(R.id.dateSelectButton)
         addExpenseButton = findViewById(R.id.addExpenseButton)
+        filterButton = findViewById(R.id.filterButton)
         showAllButton = findViewById(R.id.showAllButton)
     }
 
@@ -51,11 +57,6 @@ class MainActivity : AppCompatActivity() {
         val repo = ExpenseRepo(dao)
         val factory = ExpenseViewModelFactory(repo)
         viewModel = ViewModelProvider(this, factory)[ExpenseViewModel::class.java]
-
-        // Observe all expenses initially
-        viewModel.allExpenses.observe(this) { expenses ->
-            expenseAdapter.updateExpenses(expenses)
-        }
     }
 
     private fun setupRecyclerView() {
@@ -71,23 +72,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        dateSelectButton.setOnClickListener { showDatePicker() }
-        addExpenseButton.setOnClickListener { addExpense() }
-        showAllButton.setOnClickListener { showAllExpenses() }
+        // Calendar date selection
+        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            val calendar = Calendar.getInstance()
+            calendar.set(year, month, dayOfMonth)
+            selectedDate = dateFormat.format(calendar.time)
+            updateDateDisplay()
+        }
+
+        addExpenseButton.setOnClickListener {
+            addExpense()
+        }
+
+        filterButton.setOnClickListener {
+            filterExpensesByDate()
+        }
+
+        showAllButton.setOnClickListener {
+            showAllExpenses()
+        }
     }
 
-    private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-        val datePicker = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-            selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
-            updateDateDisplay()
-            filterByDate()
-        }, year, month, day)
-        datePicker.show()
+    private fun updateDateDisplay() {
+        try {
+            val date = dateFormat.parse(selectedDate)
+            currentDateDisplay.text = displayDateFormat.format(date!!)
+        } catch (e: Exception) {
+            currentDateDisplay.text = selectedDate
+        }
     }
 
     private fun addExpense() {
@@ -114,12 +126,19 @@ class MainActivity : AppCompatActivity() {
         viewModel.insert(expense)
         expenseNameInput.text.clear()
         expenseAmountInput.text.clear()
-        Toast.makeText(this, "Expense added", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Expense added successfully", Toast.LENGTH_SHORT).show()
+
+        // Refresh the list to show the new expense
+        filterExpensesByDate()
     }
 
-    private fun filterByDate() {
+    private fun filterExpensesByDate() {
         viewModel.getExpensesByDate(selectedDate).observe(this) { expenses ->
             expenseAdapter.updateExpenses(expenses)
+
+            if (expenses.isEmpty()) {
+                Toast.makeText(this, "No expenses found for selected date", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -127,10 +146,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.allExpenses.observe(this) { expenses ->
             expenseAdapter.updateExpenses(expenses)
         }
-        currentDateDisplay.text = "Showing All Expenses"
+        Toast.makeText(this, "Showing all expenses", Toast.LENGTH_SHORT).show()
     }
 
-    private fun updateDateDisplay() {
-        currentDateDisplay.text = "Selected Date: $selectedDate"
+    private fun loadAllExpenses() {
+        viewModel.allExpenses.observe(this) { expenses ->
+            expenseAdapter.updateExpenses(expenses)
+        }
     }
 }
