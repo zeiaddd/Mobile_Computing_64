@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">mobile_assignment</string>
+    <string name="title_activity_total_spend">TotalSpendActivity</string>
+</resources>
